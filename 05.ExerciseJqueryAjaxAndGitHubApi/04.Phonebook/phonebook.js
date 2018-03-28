@@ -1,45 +1,66 @@
 function attachEvents() {
-    $('#btnLoad').on('click', () => {
-        load();
-    });
-    $('#btnCreate').on('click', () => {
-        let obj = {
-            person: $('#person').val(),
-            phone: $('#phone').val()
-        };
-        $.ajax({
-            method: 'POST',
-            url: 'https://phonebook-nakov.firebaseio.com/phonebook/.json',
-            data: JSON.stringify(obj)
-        });
-        $('#person').val('');
-        $('#phone').val('');
-        load();
-    });
+  const apiUrl = "https://phonebook-nakov.firebaseio.com/phonebook";
+  let phoneBook = $("#phonebook");
 
-    function load() {
-        $.ajax({
-            url: 'https://phonebook-nakov.firebaseio.com/phonebook/.json',
-            success: populateData
-        });
+  $("#btnLoad").on("click", loadPhoneNumbers);
+  $("#btnCreate").on("click", addNewPhoneNumber);
 
-        function populateData(response) {
-            $('#phonebook').empty();
-            for (let contact in response) {
-                let person;
-                person = response[contact].hasOwnProperty('person') ? response[contact]['person'] : response[contact]['name'];
-                let phone = response[contact]['phone'];
-                $('#phonebook').append($(`<li>${person}: ${phone} <span id="elmnt-id" style="display: none">${contact}</span></li>`).append($(` <button>[Delete]</button>`).on('click', (e) => {
-                    let idForDelete = $('#elmnt-id').val();
-                    console.log(contact);
-                    $.ajax({
-                        method: 'DELETE',
-                        url: `https://phonebook-nakov.firebaseio.com/phonebook/${contact}.json`
-                    });
-                    setTimeout(function () {load()}, 2000); //or remove DOM ellement for immediate change
-                })))
-            }
-        }
+  function loadPhoneNumbers() {
+    $.ajax({
+      method: "GET",
+      url: apiUrl + ".json",
+      success: renderPhoneNumbers
+    });
+  }
+
+  function renderPhoneNumbers(data) {
+    phoneBook.empty();
+    let keys = Object.keys(data);
+    for (let key of keys) {
+      let number = data[key];
+      let li = $("<li>")
+        .text(`${number.person}: ${number.phone} `)
+        .append(
+          $("<button>")
+            .text("[Delete]")
+            .on("click", () => deleteEntry(key))
+        );
+
+      $("#phonebook").append(li);
     }
+  }
 
+  function deleteEntry(id) {
+    $.ajax({
+      method: "DELETE",
+      url: apiUrl + "/" + id + ".json",
+      success: loadPhoneNumbers
+    });
+  }
+
+  function addNewPhoneNumber() {
+    let person = $("#person")
+      .val()
+      .trim();
+    let phone = $("#phone")
+      .val()
+      .trim();
+
+    if (person !== "" && phone !== "") {
+      $.ajax({
+        method: "POST",
+        data: JSON.stringify({
+          person,
+          phone
+        }),
+        url: apiUrl + ".json",
+        success: function() {
+          $("#person").val("");
+          $("#phone").val("");
+
+          loadPhoneNumbers();
+        }
+      });
+    }
+  }
 }
