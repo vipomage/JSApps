@@ -23,6 +23,7 @@ Repo: <input type="text" id="repo" value="nakov.io.cin"/>
                 $( `#commits` ).append( `<li>${obj.commit.author.name}: ${obj.commit.message}" </li>` )
             }
         } ).catch( function ( err ) {
+            $(`#commits`).empty();
             $( `#commits` ).append(
                 $( `<li>Error: ${err[ 'status' ]} (${err[ 'statusText' ]})</li>` )
             )
