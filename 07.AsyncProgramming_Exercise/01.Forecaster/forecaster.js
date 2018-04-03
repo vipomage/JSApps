@@ -13,7 +13,7 @@ function attachEvents() {
     $(`div#forecast`).show();
     $(`div#forecast #current`).textContent = "Error Occured";
 
-    //todo fix error showing
+
   }
 
   function loadData() {

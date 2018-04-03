@@ -1,12 +1,10 @@
 function startApp() {
+  sessionStorage.clear();
   const BASE_URL = "https://baas.kinvey.com/appdata/kid_Sy_dpdksM";
   const APP_KEY = "kid_Sy_dpdksM";
   const APP_SECRET = "159f91e9e16345d7bdab3544bc1bc2ec";
   let username;
   let password;
-  const AUTH_HEADERS = {
-    Authorization: "Basic " + btoa(APP_KEY + ":" + APP_SECRET)
-  };
 
   checkUserLogin();
 
@@ -40,7 +38,7 @@ function startApp() {
 
   function showError(error) {
     let err;
-    if ( !isNaN(error) ) {
+    if (!isNaN(error)) {
       switch (error) {
         case 409:
           err = "Username already exists";
@@ -72,12 +70,14 @@ function startApp() {
         case 444:
           err = "she is ignoring you brah :D";
           break;
-        default:err = 'Error occured';break;
+        default:
+          err = "Error occured";
+          break;
       }
-    }else{
+    } else {
       err = error;
     }
-    
+
     $("#errorBox").replaceWith(
       $(`<section id="errorBox" class="errorBox">${err}</section>`)
     );
@@ -97,7 +97,7 @@ function startApp() {
       return false;
     } else {
       showLogged();
-      $('#viewHome').show();
+      $("#viewHome").show();
       return true;
     }
   }
@@ -123,7 +123,7 @@ function startApp() {
   }
 
   function showAdCreation() {
-    $('#viewHome').hide();
+    $("#viewHome").hide();
     $("#viewAds").hide();
     $("#viewCreateAd").show();
   }
@@ -144,21 +144,29 @@ function startApp() {
       })
       .catch(err => {
         loadingData(true);
-        showError(err.status)
+        showError(err.status);
       });
   }
 
   function createAd() {
-    
-    let title = $('#formCreateAd > div:nth-child(2) > input[type="text"]').val();
+    let title = $(
+      '#formCreateAd > div:nth-child(2) > input[type="text"]'
+    ).val();
     let description = $("#formCreateAd > div:nth-child(4) > textarea").val();
     let obj = $('#formCreateAd > div:nth-child(6) > input[type="date"]').val();
     let [year, month, day] = obj.split("-");
     let publishDate = new Date(year, month - 1, day);
     let publisher = username;
-    let price = $('#formCreateAd > div:nth-child(8) > input[type="number"]').val();
-    let test = validForm(title,description,publishDate,price);
-    if (test.correctTitle && test.correctDescr && test.correctDate && test.correctPrice) {
+    let price = $(
+      '#formCreateAd > div:nth-child(8) > input[type="number"]'
+    ).val();
+    let test = validForm(title, description, publishDate, price);
+    if (
+      test.correctTitle &&
+      test.correctDescr &&
+      test.correctDate &&
+      test.correctPrice
+    ) {
       $('#formCreateAd > div:nth-child(2) > input[type="text"]').css(
         "border",
         "none"
@@ -191,9 +199,11 @@ function startApp() {
           showStatus("Success");
           loadingData(true);
           document.getElementById("formCreateAd").reset();
-          $('#linkListAds').click();
+          $("#linkListAds").click();
         })
-        .catch(err => {loadingData(true)});
+        .catch(err => {
+          loadingData(true);
+        });
     } else {
       showError("Please fill all fields");
       if (!test.correctTitle) {
@@ -241,8 +251,7 @@ function startApp() {
   }
 
   function listAds() {
-    //todo fix relist after creating
-    $('#viewHome').hide();
+    $("#viewHome").hide();
     $("#viewCreateAd").hide();
     $("#viewEditAd").hide();
     let container = $("#ads > table > tbody");
@@ -292,6 +301,7 @@ function startApp() {
             let buttonEdit = $(
               `<a id="btnEdit" href="#" itemprop="${advert._id}">[Edit]</a>`
             ).on("click", () => {
+              loadingData(false);
               $.ajax({
                 url: BASE_URL + `/ads/${advert._id}`,
                 headers: {
@@ -299,7 +309,7 @@ function startApp() {
                 }
               })
                 .then(response => {
-                  loadingData(false);
+                  loadingData(true);
                   let month = Number(
                     new Date(response.publishDate).toISOString().split("-")[1] -
                       1
@@ -321,7 +331,7 @@ function startApp() {
                   $(
                     '#formEditAd > div:nth-child(10) > input[type="number"]'
                   ).val(response.price);
-
+                  loadingData(true);
                   $("#buttonEditAd").on("click", () => {
                     let obj = {
                       title: $(
@@ -338,7 +348,7 @@ function startApp() {
                       ).val(),
                       publisher: username
                     };
-
+                    loadingData(true);
                     $.ajax({
                       method: "PUT",
                       url: BASE_URL + `/ads/${advert._id}`,
@@ -350,8 +360,8 @@ function startApp() {
                       data: obj
                     })
                       .then(response => {
-                        showStatus("Successful edit");
-                        $('#linkListAds').click();
+                        loadingData(true);
+                        $("#linkListAds").click();
                       })
                       .catch(err => {
                         showError(err.status);
@@ -371,7 +381,7 @@ function startApp() {
             let buttons = $(`<td>`);
             buttons.append(buttonDelete, buttonEdit);
             let row = $("<tr>");
-            row.append(title,description, publisher, date, price, buttons);
+            row.append(title, description, publisher, date, price, buttons);
             $("#ads > table > tbody").append(row);
           }
         } else {
@@ -394,7 +404,7 @@ function startApp() {
     $.ajax({
       method: "POST",
       url: `https://baas.kinvey.com/user/kid_Sy_dpdksM/`,
-      headers: {Authorization: "Basic " + btoa(APP_KEY + ":" + APP_SECRET)},
+      headers: { Authorization: "Basic " + btoa(APP_KEY + ":" + APP_SECRET) },
       data: { username, password }
     })
       .then(response => {
@@ -417,7 +427,7 @@ function startApp() {
     $.ajax({
       method: "POST",
       url: `https://baas.kinvey.com/user/kid_Sy_dpdksM/login`,
-      headers: {Authorization: "Basic " + btoa(APP_KEY + ":" + APP_SECRET)},
+      headers: { Authorization: "Basic " + btoa(APP_KEY + ":" + APP_SECRET) },
       data: { username, password }
     })
       .then(response => {
@@ -429,7 +439,7 @@ function startApp() {
         showStatus("Successful login");
       })
       .catch(err => {
-        loadingData(true)
+        loadingData(true);
       });
   }
 
