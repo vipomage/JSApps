@@ -40,40 +40,44 @@ function startApp() {
 
   function showError(error) {
     let err;
-    switch (error) {
-      case 409:
-        err = "Username already exists";
-        break;
-      case 400:
-        err = "Bad Request (Did you miss any input fields ?)";
-        break;
-      case 401:
-        err = "You don't have permission to do that!";
-        break;
-      case 402:
-        err = "Eh sorry brah gibe money";
-        break;
-      case 403:
-        err = "Unfortunately thats forbidden";
-        break;
-      case 404:
-        err = "Meh :/ couldn't find this";
-        break;
-      case 429:
-        err = "Are you tryn to DDOS  me bro ?";
-        break;
-      case 500:
-        err = "Meh kinvey got internal problems bad food maybe the cause";
-        break;
-      case 503:
-        err = "Kinvey on a break give him a minute";
-        break;
-      case 444:
-        err = "she is ignoring you brah :D";
-        break;
-      default:err = 'Error occured';break;
+    if ( !isNaN(error) ) {
+      switch (error) {
+        case 409:
+          err = "Username already exists";
+          break;
+        case 400:
+          err = "Bad Request (Did you miss any input fields ?)";
+          break;
+        case 401:
+          err = "You don't have permission to do that!";
+          break;
+        case 402:
+          err = "Eh sorry brah gibe money";
+          break;
+        case 403:
+          err = "Unfortunately thats forbidden";
+          break;
+        case 404:
+          err = "Meh :/ couldn't find this";
+          break;
+        case 429:
+          err = "Are you tryn to DDOS  me bro ?";
+          break;
+        case 500:
+          err = "Meh kinvey got internal problems bad food maybe the cause";
+          break;
+        case 503:
+          err = "Kinvey on a break give him a minute";
+          break;
+        case 444:
+          err = "she is ignoring you brah :D";
+          break;
+        default:err = 'Error occured';break;
+      }
+    }else{
+      err = error;
     }
-
+    
     $("#errorBox").replaceWith(
       $(`<section id="errorBox" class="errorBox">${err}</section>`)
     );
@@ -138,22 +142,21 @@ function startApp() {
         showStatus("Successful deletion");
         domElement.remove();
       })
-      .catch(err => {});
+      .catch(err => {
+        loadingData(true);
+        showError(err.status)
+      });
   }
 
   function createAd() {
     
-    let title = $(
-      '#formCreateAd > div:nth-child(2) > input[type="text"]'
-    ).val();
+    let title = $('#formCreateAd > div:nth-child(2) > input[type="text"]').val();
     let description = $("#formCreateAd > div:nth-child(4) > textarea").val();
     let obj = $('#formCreateAd > div:nth-child(6) > input[type="date"]').val();
     let [year, month, day] = obj.split("-");
     let publishDate = new Date(year, month - 1, day);
     let publisher = username;
-    let price = $(
-      '#formCreateAd > div:nth-child(8) > input[type="number"]'
-    ).val();
+    let price = $('#formCreateAd > div:nth-child(8) > input[type="number"]').val();
     let test = validForm(title,description,publishDate,price);
     if (test.correctTitle && test.correctDescr && test.correctDate && test.correctPrice) {
       $('#formCreateAd > div:nth-child(2) > input[type="text"]').css(
@@ -169,7 +172,7 @@ function startApp() {
         "border",
         "none"
       );
-
+      loadingData(false);
       $.ajax({
         method: "POST",
         url: BASE_URL + "/ads",
@@ -185,12 +188,12 @@ function startApp() {
         }
       })
         .then(response => {
-          //todo showloading
           showStatus("Success");
+          loadingData(true);
           document.getElementById("formCreateAd").reset();
           $('#linkListAds').click();
         })
-        .catch(err => {});
+        .catch(err => {loadingData(true)});
     } else {
       showError("Please fill all fields");
       if (!test.correctTitle) {
@@ -235,7 +238,6 @@ function startApp() {
         );
       }
     }
-    $('#linkListAds').click();
   }
 
   function listAds() {
@@ -297,6 +299,7 @@ function startApp() {
                 }
               })
                 .then(response => {
+                  loadingData(false);
                   let month = Number(
                     new Date(response.publishDate).toISOString().split("-")[1] -
                       1
@@ -355,7 +358,9 @@ function startApp() {
                       });
                   });
                 })
-                .catch(err => {});
+                .catch(err => {
+                  loadingData(true);
+                });
             });
 
             let title = $(`<td>${advert["title"]}</td>`);
@@ -398,6 +403,7 @@ function startApp() {
         showStatus("Successful registration");
       })
       .catch(err => {
+        loadingData(true);
         showError(err.status);
       });
   }
@@ -422,7 +428,9 @@ function startApp() {
         loadingData(true);
         showStatus("Successful login");
       })
-      .catch(err => {});
+      .catch(err => {
+        loadingData(true)
+      });
   }
 
   function logoutUser() {
