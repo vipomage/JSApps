@@ -1,5 +1,12 @@
 function startApp() {
   sessionStorage.clear();
+  $("main").append(
+    $(
+      `<section id="viewMore" class="viewMore" style="display: none;"></section>`
+    )
+  );
+  attachUrlToEditForm();
+
   const BASE_URL = "https://baas.kinvey.com/appdata/kid_Sy_dpdksM";
   const APP_KEY = "kid_Sy_dpdksM";
   const APP_SECRET = "159f91e9e16345d7bdab3544bc1bc2ec";
@@ -9,7 +16,15 @@ function startApp() {
 
   checkUserLogin();
 
-  attachButtons();
+  function attachUrlToEditForm() {
+    if ($("#formEditAd")[0].length === 7) {
+      $("#formEditAd").append($("<div>image:</div>"));
+      $("#formEditAd").append($('<div><input type="text" name="image"></div>'));
+      let btn = $("#formEditAd > div:nth-child(11)");
+      $("#formEditAd > div:nth-child(11)").remove();
+      $("#formEditAd").append(btn);
+    }
+  }
 
   function showStatus(status) {
     $("section#infoBox").replaceWith(
@@ -20,6 +35,25 @@ function startApp() {
       $("section#infoBox").hide(300);
     }, 3000);
   }
+
+  function showAdCreation() {
+    $("#viewMore").hide();
+    $("#viewHome").hide();
+    $("#viewAds").hide();
+    $("#viewCreateAd").show();
+    if ($("#formCreateAd")[0].length === 5) {
+      $("#formCreateAd").append($("<div>image:</div>"));
+      $("#formCreateAd").append(
+        $('<div><input type="text" placeholder="image URL"></div>')
+      );
+      let btn = $(`#formCreateAd > div:nth-child(9)`);
+      $("#formCreateAd > div:nth-child(9)").remove();
+      btn.on("click", createAd);
+      $("#formCreateAd").append(btn);
+    }
+  }
+
+  attachButtons();
 
   function attachButtons() {
     $("#linkHome").on("click", () => {
@@ -32,8 +66,14 @@ function startApp() {
     $("#buttonRegisterUser").on("click", registerUser);
     $("#buttonLoginUser").on("click", loginUser);
     $("#linkListAds").on("click", listAds);
-    $("#linkCreateAd").on("click", showAdCreation);
-    $("#buttonCreateAd").on("click", createAd);
+    $("#linkCreateAd").on("click", () => {
+      showAdCreation();
+      $("#viewEditAd").hide();
+    });
+    $("#buttonCreateAd").on("click", () => {
+      createAd();
+      $("#viewCreateAd").hide();
+    });
     $("#linkHome").on("click", checkUserLogin);
   }
 
@@ -123,12 +163,6 @@ function startApp() {
     $("#viewRegister").show();
   }
 
-  function showAdCreation() {
-    $("#viewHome").hide();
-    $("#viewAds").hide();
-    $("#viewCreateAd").show();
-  }
-
   function deleteAd(id, domElement) {
     dataLoaded(false);
     $.ajax({
@@ -160,6 +194,9 @@ function startApp() {
     let publisher = username;
     let price = $(
       '#formCreateAd > div:nth-child(8) > input[type="number"]'
+    ).val();
+    let imgUrl = $(
+      '#formCreateAd > div:nth-child(10) > input[type="text"]'
     ).val();
     let test = validForm(title, description, publishDate, price);
     if (
@@ -193,6 +230,8 @@ function startApp() {
           description,
           publishDate,
           publisher,
+          imgUrl,
+          viewCount: 1,
           price: Number.parseFloat(price).toFixed(2)
         }
       })
@@ -255,6 +294,7 @@ function startApp() {
     $("#viewHome").hide();
     $("#viewCreateAd").hide();
     $("#viewEditAd").hide();
+    $("#viewMore").hide();
     let container = $("#ads > table > tbody");
     container.replaceWith(
       $(`<tbody>
@@ -290,7 +330,9 @@ function startApp() {
                 "</tr></tbody></table>"
             )
           );
-          for (let advert of response) {
+          for (let advert of response.sort(
+            (a, b) => b.viewCount - a.viewCount
+          )) {
             $("#ads p").replaceWith($("<table>"));
             let myDate = new Date(advert["publishDate"]);
             let buttonDelete = $(
@@ -302,6 +344,9 @@ function startApp() {
             let buttonEdit = $(
               `<a id="btnEdit" href="#" itemprop="${advert._id}">[Edit]</a>`
             ).on("click", e => editAd(advert, e));
+            let buttonMore = $(`<a href="#">[Read More]</a>`).on("click", e =>
+              viewMore(advert, e)
+            );
 
             let title = $(`<td>${advert["title"]}</td>`);
             let publisher = $(`<td>${advert["publisher"]}</td>`);
@@ -310,7 +355,7 @@ function startApp() {
             let date = $(`<td>${myDate.toISOString().substr(0, 10)}</td>`);
             let buttons = $(`<td>`);
 
-            buttons.append(buttonDelete, buttonEdit);
+            buttons.append(buttonMore, buttonDelete, buttonEdit);
             let row = $("<tr>");
             row.append(title, description, publisher, date, price, buttons);
             $("#ads > table > tbody").append(row);
@@ -324,6 +369,67 @@ function startApp() {
         dataLoaded(true);
       });
     $("#viewAds").show();
+  }
+
+  function increaseCount(advert, e) {
+    let count = Number(++advert.viewCount);
+    let obj = {
+      title: advert.title,
+      description: advert.description,
+      imgUrl: advert.imgUrl,
+      price: advert.price,
+      publishDate: advert.publishDate,
+      publisher: advert.publisher,
+      viewCount: count
+    };
+    $.ajax({
+      method: "PUT",
+      url: BASE_URL + `/ads/${advert._id}`,
+      headers: { Authorization: `Basic :${btoa(username + ":" + password)}` },
+      data: obj
+    });
+  }
+
+  function viewMore(advert) {
+    dataLoaded(false);
+    $.ajax({
+      url: BASE_URL + `/ads/${advert._id}`,
+      headers: {
+        Authorization: `Basic :${btoa(username + ":" + password)}`
+      }
+    })
+      .then(response => {
+        increaseCount(advert);
+        dataLoaded(true);
+        let container = $("#viewMore");
+        container.empty();
+        let myDate = new Date(advert["publishDate"]);
+        $("#viewAds").hide();
+        $("#viewAds").hide();
+        container.append($(`<img src="${response.imgUrl}">`));
+        container.append($(`<p>Title:</p>`));
+        container.append($(`<h2>${response.title}</h2>`));
+        container.append($(`<p>Description:</p>`));
+        container.append($(`<p>${response.description}</p>`));
+        container.append($(`<p>Publisher:</p>`));
+        container.append($(`<p>${response.publisher}</p>`));
+        container.append($(`<p>Date:</p>`));
+        container.append($(`<p>${myDate.toISOString().substr(0, 10)}</p>`));
+        container.append(
+          $(
+            `<p style="font-weight: 500;font-size:1.1rem">Views: ${
+              response.viewCount
+            }</p>`
+          )
+        );
+        $("main").append(container);
+        $("#viewMore").show();
+        dataLoaded(true);
+      })
+      .catch(err => {
+        showError(err.status);
+        dataLoaded(true);
+      });
   }
 
   function editAd(advert, e) {
@@ -369,7 +475,11 @@ function startApp() {
               price: $(
                 '#formEditAd > div:nth-child(10) > input[type="number"]'
               ).val(),
-              publisher: username
+              publisher: username,
+              imgUrl: $(
+                '#formEditAd > div:nth-child(12) > input[type="text"]'
+              ).val(),
+              viewCount: response.viewCount
             };
             dataLoaded(false);
 
