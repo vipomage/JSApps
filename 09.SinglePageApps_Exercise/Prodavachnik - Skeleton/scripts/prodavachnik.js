@@ -1,10 +1,9 @@
 function startApp() {
   sessionStorage.clear();
-  let collection;
   const BASE_URL = "https://baas.kinvey.com/appdata/kid_Sy_dpdksM";
   const APP_KEY = "kid_Sy_dpdksM";
   const APP_SECRET = "159f91e9e16345d7bdab3544bc1bc2ec";
-  
+
   let username;
   let password;
 
@@ -302,7 +301,7 @@ function startApp() {
             });
             let buttonEdit = $(
               `<a id="btnEdit" href="#" itemprop="${advert._id}">[Edit]</a>`
-            ).on("click", e => editAd(advert,e));
+            ).on("click", e => editAd(advert, e));
 
             let title = $(`<td>${advert["title"]}</td>`);
             let publisher = $(`<td>${advert["publisher"]}</td>`);
@@ -310,6 +309,7 @@ function startApp() {
             let price = $(`<td>${advert["price"]}</td>`);
             let date = $(`<td>${myDate.toISOString().substr(0, 10)}</td>`);
             let buttons = $(`<td>`);
+
             buttons.append(buttonDelete, buttonEdit);
             let row = $("<tr>");
             row.append(title, description, publisher, date, price, buttons);
@@ -325,9 +325,8 @@ function startApp() {
       });
     $("#viewAds").show();
   }
-  
-  function editAd(advert,e) {
-    
+
+  function editAd(advert, e) {
     if (e.target.parentNode.parentNode.childNodes[2].innerText === username) {
       dataLoaded(false);
       $.ajax({
@@ -339,21 +338,39 @@ function startApp() {
         .then(response => {
           dataLoaded(true);
           let myDate = new Date(advert["publishDate"]);
-          let month = Number(new Date(response.publishDate)
-              .toISOString()
-              .split("-")[1] - 1);
+          let month = Number(
+            new Date(response.publishDate).toISOString().split("-")[1] - 1
+          );
           let editDate = new Date(response.publishDate);
           editDate.setMonth(month);
           let date = myDate.toISOString().substr(0, 10);
           $("#viewAds").hide();
           $("#viewEditAd").show();
-          $('#formEditAd > div:nth-child(4) > input[type="text"]').val(response.title);
-          $("#formEditAd > div:nth-child(6) > textarea").val(response.description);
+          $('#formEditAd > div:nth-child(4) > input[type="text"]').val(
+            response.title
+          );
+          $("#formEditAd > div:nth-child(6) > textarea").val(
+            response.description
+          );
           $('#formEditAd > div:nth-child(8) > input[type="date"]').val(date);
-          $('#formEditAd > div:nth-child(10) > input[type="number"]').val(response.price);
+          $('#formEditAd > div:nth-child(10) > input[type="number"]').val(
+            response.price
+          );
           dataLoaded(true);
           $("#buttonEditAd").on("click", () => {
-            let obj = { title: $('#formEditAd > div:nth-child(4) > input[type="text"]').val(), description: $("#formEditAd > div:nth-child(6) > textarea").val(), publishDate: $('#formEditAd > div:nth-child(8) > input[type="date"]').val(), price: $('#formEditAd > div:nth-child(10) > input[type="number"]').val(), publisher: username };
+            let obj = {
+              title: $(
+                '#formEditAd > div:nth-child(4) > input[type="text"]'
+              ).val(),
+              description: $("#formEditAd > div:nth-child(6) > textarea").val(),
+              publishDate: $(
+                '#formEditAd > div:nth-child(8) > input[type="date"]'
+              ).val(),
+              price: $(
+                '#formEditAd > div:nth-child(10) > input[type="number"]'
+              ).val(),
+              publisher: username
+            };
             dataLoaded(false);
 
             $.ajax({
@@ -366,7 +383,7 @@ function startApp() {
             })
               .then(() => {
                 dataLoaded(true);
-                showStatus('Successful Edit')
+                showStatus("Successful Edit");
                 $("#linkListAds").click();
               })
               .catch(err => {
@@ -382,7 +399,7 @@ function startApp() {
       showError("You dont have permission to do that!");
     }
   }
-    
+
   function registerUser() {
     username = $('#formRegister > div:nth-child(2) > input[type="text"]').val();
     password = $(
