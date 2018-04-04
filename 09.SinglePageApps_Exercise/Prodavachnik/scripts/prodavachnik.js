@@ -1,16 +1,17 @@
 function startApp() {
   sessionStorage.clear();
+  const BASE_URL = "https://baas.kinvey.com/appdata/kid_Sy_dpdksM";
+  const APP_KEY = "kid_Sy_dpdksM";
+  const APP_SECRET = "159f91e9e16345d7bdab3544bc1bc2ec";
   $("main").append(
     $(
       `<section id="viewMore" class="viewMore" style="display: none;"></section>`
     )
   );
   attachUrlToEditForm();
-
-  const BASE_URL = "https://baas.kinvey.com/appdata/kid_Sy_dpdksM";
-  const APP_KEY = "kid_Sy_dpdksM";
-  const APP_SECRET = "159f91e9e16345d7bdab3544bc1bc2ec";
-
+  attachUrlToCreateForm();
+  attachButtons();
+  
   let username;
   let password;
 
@@ -35,13 +36,9 @@ function startApp() {
       $("section#infoBox").hide(300);
     }, 3000);
   }
-
-  function showAdCreation() {
-    $("#viewMore").hide();
-    $("#viewHome").hide();
-    $("#viewAds").hide();
-    $("#viewCreateAd").show();
-    if ($("#formCreateAd")[0].length === 5) {
+  
+  function attachUrlToCreateForm() {
+    if ( $("#formCreateAd")[ 0 ].length === 5 ) {
       $("#formCreateAd").append($("<div>image:</div>"));
       $("#formCreateAd").append(
         $('<div><input type="text" placeholder="image URL"></div>')
@@ -52,9 +49,15 @@ function startApp() {
       $("#formCreateAd").append(btn);
     }
   }
-
-  attachButtons();
-
+  
+  function showAdCreation() {
+    $("#viewMore").hide();
+    $("#viewHome").hide();
+    $("#viewAds").hide();
+    $("#viewCreateAd").show();
+    
+  }
+  
   function attachButtons() {
     $("#linkHome").on("click", () => {
       $("#viewLogin").hide();
@@ -172,7 +175,7 @@ function startApp() {
         Authorization: `Basic :${btoa(username + ":" + password)}`
       }
     })
-      .then(response => {
+      .then(() => {
         dataLoaded(true);
         showStatus("Successful deletion");
         domElement.remove();
@@ -235,13 +238,13 @@ function startApp() {
           price: Number.parseFloat(price).toFixed(2)
         }
       })
-        .then(response => {
+        .then(() => {
           showStatus("Success");
           dataLoaded(true);
           document.getElementById("formCreateAd").reset();
           $("#linkListAds").click();
         })
-        .catch(err => {
+        .catch(() => {
           dataLoaded(true);
         });
     } else {
@@ -370,8 +373,8 @@ function startApp() {
       });
     $("#viewAds").show();
   }
-
-  function increaseCount(advert, e) {
+  
+  function increaseCount(advert) {
     let count = Number(++advert.viewCount);
     let obj = {
       title: advert.title,
@@ -462,6 +465,9 @@ function startApp() {
           $('#formEditAd > div:nth-child(10) > input[type="number"]').val(
             response.price
           );
+          $('#formEditAd > div:nth-child(12) > input[type="text"]').val(
+            response.imgUrl
+          );
           dataLoaded(true);
           $("#buttonEditAd").on("click", () => {
             let obj = {
@@ -522,7 +528,7 @@ function startApp() {
       headers: { Authorization: "Basic " + btoa(APP_KEY + ":" + APP_SECRET) },
       data: { username, password }
     })
-      .then(response => {
+      .then(() => {
         dataLoaded(true);
         showLogin();
         showStatus("Successful registration");
@@ -553,7 +559,7 @@ function startApp() {
         dataLoaded(true);
         showStatus("Successful login");
       })
-      .catch(err => {
+      .catch(() => {
         dataLoaded(true);
       });
   }
@@ -569,7 +575,8 @@ function startApp() {
     $("#linkRegister").show();
 
     $("main section").hide();
-
+    username = undefined;
+    password = undefined;
     showNotLogged();
   }
 
