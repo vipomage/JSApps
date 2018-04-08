@@ -1,23 +1,22 @@
 <article>
-    {{#if title}}
-        <h1><span>Title:</span>{{title}}</h1>
-    {{else}}
-        <h1>No title</h1>
-    {{/if}}
     {{#each contacts}}
-        <div style="border: 1px solid black">
+        {{#if name}}
             <div class="title" s>
                 {{name}}
                 <button>&#8505;</button>
             </div>
-            <div class="info">
-                <p>
-                    &phone;{{phone}}
-                </p>
-                <p>
-                    &#9993;{{email}}
-                </p>
-            </div>
+        {{else}}
+            <div>No Name</div>
+        {{/if}}
+
+        <div class="info">
+            <p>
+                &phone;{{phone}}
+            </p>
+            <p>
+                &#9993;{{email}}
+            </p>
         </div>
+
     {{/each}}
 </article>
