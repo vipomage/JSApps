@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="../../node_modules/handlebars/dist/handlebars.min.js"></script>
+</head>
+<body>
+
+<script>
+  (async function () {
+    let source = await $.get('template.hbs');
+    let template = Handlebars.compile(source);
+    let object = {
+      //title:'Friends',
+      contacts: [
+        {name: 'Ivan Ivanov', email: 'i.ivanov@gmail.com', phone: '088946516321'},
+        {name: 'Maria Petrova', email: 'mar4eto@gmail.com', phone: '084965651589'},
+        {name: 'Jordan Kirov', email: 'jordk@gmail.com', phone: '084651651686'},
+      ]
+    };
+    let html = template(object);
+    $('body').append(html);
+  })();
+</script>
+</body>
+</html>
