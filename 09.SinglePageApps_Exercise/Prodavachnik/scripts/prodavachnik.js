@@ -73,10 +73,7 @@ function startApp() {
       showAdCreation();
       $("#viewEditAd").hide();
     });
-    $("#buttonCreateAd").on("click", () => {
-      createAd();
-      $("#viewCreateAd").hide();
-    });
+    $("#buttonCreateAd").on("click", createAd, () => $("#viewCreateAd").hide());
     $("#linkHome").on("click", checkUserLogin);
   }
 
