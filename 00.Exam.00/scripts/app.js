@@ -4,7 +4,6 @@ function startApp() {
   const APP_KEY = 'kid_rkGR10enz';
   const APP_SECRET = 'de05ecb5c7e24e608fde8e641c1dba7b';
   const KINVEY = {Authorization: "Basic " + btoa(APP_KEY + ":" + APP_SECRET)};
-  const USER_AUTH = {};
   
   function showInfo(info) {
     $("#infoBox span")[ 0 ].textContent = info;
@@ -187,7 +186,6 @@ function startApp() {
     });
     
   }
-  
   
   function showNotLogged() {
     $('section:not("#welcome-section")').hide();
@@ -552,11 +550,8 @@ function startApp() {
   }
   
   
-  ////////////////////////////
-  
   showNotLogged();
   attachBtnEvents();
-  
   
 }
 
