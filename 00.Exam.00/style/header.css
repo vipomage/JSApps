@@ -1,0 +1,51 @@
+header {
+    box-sizing: border-box;
+    position: relative;
+    background: #5B9BD5;
+    border: 2px solid #41719C;
+    padding: 10px;
+    }
+
+#cashier {
+    float: left;
+    padding: 5px;
+    margin: 5px;
+    }
+
+#cashier span {
+    color: #FFFFFF;
+    font-size: 1.25rem;
+    }
+
+#cashier a {
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 1.25rem;
+    }
+
+#nav {
+    float: right;
+    }
+
+#nav ul {
+    list-style: none;
+    }
+
+#nav ul li {
+    display: inline-block;
+    }
+
+#nav ul > li a {
+    display: block;
+    font-weight: bold;
+    padding: 5px;
+    margin: 5px;
+    border: 2px solid #41719C;
+    font-size: 1.25rem;
+    color: #FFFFFF;
+    }
+
+#nav ul > li a.logout {
+    color: black;
+    background: #FFFFFF;
+    }
